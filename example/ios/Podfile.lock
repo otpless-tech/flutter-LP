@@ -2,8 +2,8 @@ PODS:
   - Flutter (1.0.0)
   - otpless_flutter_lp (0.0.1):
     - Flutter
-    - OtplessSwiftLP (= 1.0.1)
-  - OtplessSwiftLP (1.0.1):
+    - OtplessSwiftLP (= 1.0.2)
+  - OtplessSwiftLP (1.0.2):
     - Socket.IO-Client-Swift (~> 16.1.1)
   - Socket.IO-Client-Swift (16.1.1):
     - Starscream (~> 4.0.8)
@@ -27,8 +27,8 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
-  otpless_flutter_lp: 58212401127b295fb67a10e18e2468bafae55e5e
-  OtplessSwiftLP: a45bc00e842582a202853f95670b2152d3150c41
+  otpless_flutter_lp: 0dc7e33f9548788b0393e07bb910443e3adacac7
+  OtplessSwiftLP: 51bcac346e55157bcb5f3f67618fecddd1bccd08
   Socket.IO-Client-Swift: 3614bea82ba005df1c2ff01154f4004993e05ad7
   Starscream: 19b5533ddb925208db698f0ac508a100b884a1b9
 

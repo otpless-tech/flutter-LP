@@ -21,9 +21,7 @@ public class SwiftOtplessFlutterLP: NSObject, FlutterPlugin, ConnectResponseDele
             if let args = call.arguments as? [String: Any],
                let appId = args["appId"] as? String,
                let secret = args["secret"] as? String {
-                OtplessSwiftLP.shared.initialize(appId: appId, secret: secret, onInitializationComplete: { success in
-//                    self?.sendResponse(dict: ["success": success])
-                })
+                OtplessSwiftLP.shared.initialize(appId: appId, secret: secret)
             }
         case "setResponseCallback":
             OtplessSwiftLP.shared.setResponseDelegate(self)

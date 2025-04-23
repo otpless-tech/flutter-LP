@@ -48,9 +48,7 @@ class OtplessFlutterLP: FlutterPlugin, MethodCallHandler, ActivityAware, Activit
         result.success("")
         activity.runOnUiThread {
           connectController = ConnectController.getInstance(activity, appId, secret)
-          connectController.initializeOtpless {
-//            sendResponse(JSONObject().apply { put("success", true) })
-          }
+          connectController.initializeOtpless()
         }
       }
 

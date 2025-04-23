@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:otpless_flutter_lp/otpless_flutter.dart';
@@ -19,8 +18,8 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   String _dataResponse = 'Unknown';
   final _otplessFlutterLP = Otpless();
-  static const String appId = "OD6F3SJGCP93605DA5OM";
-  String secret = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtfcggKbl2NQTrVf63uRi0zYyppFd4Vk3xPiu4fYug7MmNf5Vg5/9RNr7jjchWx0bCkB13ALyPEs8SJggGLnfzMigzXiVaDjjuuIdQKSYtZGfo6dnxg8EMPwUT9GCKcZuIM4dyYGHXMSP+Wa9XtyfuU2oR88MXfSmyDZDe7o5Lfi6Lpgw0sNQmG/eSnCbC11+CyvnCnYSeO4f4++X1TqaaXAczZlcJZK71lndFOYjx/4oSj2PAW57SkJLCep+FDgX74aEwBuqtwaGqyInt7bvAA36kRJcySPNW6KF139Wi4+dsOqvHPZNtkgO8ZLiE+Zd9LJdwcYf+PldOiEixqh5qwIDAQAB";
+  static const String appId = "";
+  String secret = "";
 
   @override
   void initState() {
