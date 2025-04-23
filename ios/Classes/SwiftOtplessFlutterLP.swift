@@ -14,19 +14,29 @@ public class SwiftOtplessFlutterLP: NSObject, FlutterPlugin, ConnectResponseDele
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         switch call.method {
         case "start":
-            guard let viewController = UIApplication.shared.delegate?.window??.rootViewController else {return}
+            guard let viewController = UIApplication.shared.delegate?.window??.rootViewController else {
+                result("")
+                return
+            }
             OtplessSwiftLP.shared.start(vc: viewController)
+            result("")
         case "initialize":
-            guard let _ = UIApplication.shared.delegate?.window??.rootViewController else { return }
+            guard let _ = UIApplication.shared.delegate?.window??.rootViewController else {
+                result("")
+                return
+            }
             if let args = call.arguments as? [String: Any],
                let appId = args["appId"] as? String,
                let secret = args["secret"] as? String {
                 OtplessSwiftLP.shared.initialize(appId: appId, secret: secret)
             }
+            result("")
         case "setResponseCallback":
             OtplessSwiftLP.shared.setResponseDelegate(self)
+            result("")
         case "stop":
             OtplessSwiftLP.shared.cease()
+            result("")
         default:
             result(FlutterMethodNotImplemented)
         }
