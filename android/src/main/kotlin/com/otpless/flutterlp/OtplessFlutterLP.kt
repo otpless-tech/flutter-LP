@@ -9,6 +9,7 @@ import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
 import com.otpless.loginpage.main.ConnectController
 import com.otpless.loginpage.model.AuthResponse
+import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
@@ -31,7 +32,7 @@ class OtplessFlutterLP: FlutterPlugin, MethodCallHandler, ActivityAware, Activit
   /// when the Flutter Engine is detached from the Activity
   private lateinit var channel : MethodChannel
   private lateinit var context: Context
-  private lateinit var activity: Activity
+  private lateinit var activity: FlutterFragmentActivity
   private lateinit var connectController: ConnectController
 
   override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
@@ -45,24 +46,24 @@ class OtplessFlutterLP: FlutterPlugin, MethodCallHandler, ActivityAware, Activit
       "initialize" -> {
         val appId = call.argument<String>("appId") ?: ""
         val secret = call.argument<String>("secret") ?: ""
+        connectController = ConnectController.getInstance(activity, appId, secret)
+        connectController.initializeOtpless()
         result.success("")
-        activity.runOnUiThread {
-          connectController = ConnectController.getInstance(activity, appId, secret)
-          connectController.initializeOtpless()
-        }
       }
 
       "start" -> {
         start()
+        result.success("")
       }
 
       "setResponseCallback" -> {
-        result.success("")
         connectController.registerResponseCallback(this::onAuthResponse)
+        result.success("")
       }
 
       "stop" -> {
         connectController.closeOtpless()
+        result.success("")
       }
 
       else -> {
@@ -81,7 +82,7 @@ class OtplessFlutterLP: FlutterPlugin, MethodCallHandler, ActivityAware, Activit
   }
 
   private fun start() {
-    CoroutineScope(Dispatchers.IO).launch {
+    activity.lifecycleScope.launch(Dispatchers.IO) {
       connectController.startOtplessWithLoginPage()
     }
   }
@@ -92,7 +93,7 @@ class OtplessFlutterLP: FlutterPlugin, MethodCallHandler, ActivityAware, Activit
   }
 
   override fun onAttachedToActivity(binding: ActivityPluginBinding) {
-    activity = binding.activity
+    activity = binding.activity as FlutterFragmentActivity
     binding.addActivityResultListener(this)
     binding.addOnNewIntentListener(this)
   }
