@@ -1,14 +1,11 @@
 package com.otpless.flutterlp
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.util.Log
-import androidx.annotation.NonNull
-import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
-import com.otpless.loginpage.main.ConnectController
-import com.otpless.loginpage.model.AuthResponse
+import com.otpless.loginpage.main.OtplessController
+import com.otpless.loginpage.model.OtplessResult
 import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
@@ -19,7 +16,6 @@ import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import io.flutter.plugin.common.PluginRegistry.ActivityResultListener
 import io.flutter.plugin.common.PluginRegistry.NewIntentListener
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.json.JSONObject
@@ -33,7 +29,7 @@ class OtplessFlutterLP: FlutterPlugin, MethodCallHandler, ActivityAware, Activit
   private lateinit var channel : MethodChannel
   private lateinit var context: Context
   private lateinit var activity: FlutterFragmentActivity
-  private lateinit var connectController: ConnectController
+  private lateinit var otplessController: OtplessController
 
   override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
     channel = MethodChannel(flutterPluginBinding.binaryMessenger, "otpless_flutter_lp")
@@ -46,8 +42,10 @@ class OtplessFlutterLP: FlutterPlugin, MethodCallHandler, ActivityAware, Activit
       "initialize" -> {
         val appId = call.argument<String>("appId") ?: ""
         val secret = call.argument<String>("secret") ?: ""
-        connectController = ConnectController.getInstance(activity, appId, secret)
-        connectController.initializeOtpless()
+        otplessController = OtplessController.getInstance(activity)
+        otplessController.initializeOtpless(appId) {
+
+        }
         result.success("")
       }
 
@@ -57,12 +55,12 @@ class OtplessFlutterLP: FlutterPlugin, MethodCallHandler, ActivityAware, Activit
       }
 
       "setResponseCallback" -> {
-        connectController.registerResponseCallback(this::onAuthResponse)
+        otplessController.registerResultCallback(this::onAuthResponse)
         result.success("")
       }
 
       "stop" -> {
-        connectController.closeOtpless()
+        otplessController.closeOtpless()
         result.success("")
       }
 
@@ -72,18 +70,32 @@ class OtplessFlutterLP: FlutterPlugin, MethodCallHandler, ActivityAware, Activit
     }
   }
 
-  private fun onAuthResponse(response: AuthResponse) {
+  private fun onAuthResponse(response: OtplessResult) {
     Log.d(Tag, "callback onAuthResponse with response $response")
-    sendResponse(response.response)
+    sendResponse(response)
   }
 
-  private fun sendResponse(response: JSONObject) {
-    channel.invokeMethod("otpless_callback_event", response.toString())
+  private fun sendResponse(result: OtplessResult) {
+
+    val json = when(result) {
+      is OtplessResult.Success -> JSONObject().also {
+        it.put("token", result.token)
+        it.put("traceId", result.traceId)
+      }
+      is OtplessResult.Error -> JSONObject().also {
+        it.put("traceId", result.traceId)
+        it.put("errorCode",result.errorCode)
+        it.put("errorType",result.errorType)
+        it.put("errorMessage" ,result.errorMessage)
+      }
+    }
+
+    channel.invokeMethod("otpless_callback_event", json.toString())
   }
 
   private fun start() {
     activity.lifecycleScope.launch(Dispatchers.IO) {
-      connectController.startOtplessWithLoginPage()
+      otplessController.startOtplessWithLoginPage()
     }
   }
 
@@ -99,8 +111,8 @@ class OtplessFlutterLP: FlutterPlugin, MethodCallHandler, ActivityAware, Activit
   }
 
   override fun onNewIntent(intent: Intent): Boolean {
-    if (!this::connectController.isInitialized) return false
-    connectController.onNewIntent(activity, intent)
+    if (!this::otplessController.isInitialized) return false
+    otplessController.onNewIntent(activity, intent)
     return true
   }
 
