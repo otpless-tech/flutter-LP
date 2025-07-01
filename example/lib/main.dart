@@ -18,18 +18,24 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   String _dataResponse = 'Unknown';
   final _otplessFlutterLP = Otpless();
-  static const String appId = "";
-  String secret = "";
+  static const String appId = "PULP572EREYRMYBHXZJG";
 
   @override
   void initState() {
     super.initState();
-    _otplessFlutterLP.initialize(appId, secret);
+    _initializeLoginPage();
+  }
+
+  Future<void> _initializeLoginPage() async {
+    const CctSupportConfig config =
+        CctSupportConfig(type: CctSupportType.cCT, origin: null);
+    final String traceId = await _otplessFlutterLP.initialize(appId, config);
     _otplessFlutterLP.setResponseCallback(onLoginPageResult);
+    print('LoginPage initialized with traceId: $traceId');
   }
 
   Future<void> openLoginPage() async {
-    _otplessFlutterLP.start();
+    _otplessFlutterLP.start(null);
   }
 
   void onLoginPageResult(dynamic result) {
@@ -38,12 +44,15 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
-  void stop() {
+  Future<void> stop() async {
     setState(() {
       _dataResponse = "Stopping and Reinitializing Otpless...";
     });
     _otplessFlutterLP.stop();
-    _otplessFlutterLP.initialize(appId, secret);
+    const CctSupportConfig config =
+        CctSupportConfig(type: CctSupportType.cCT, origin: null);
+    final String traceId = await _otplessFlutterLP.initialize(appId, config);
+    _otplessFlutterLP.initialize(appId, config);
   }
 
   @override
@@ -66,14 +75,11 @@ class _MyAppState extends State<MyApp> {
                     onPressed: openLoginPage,
                     child: const Text("Start"),
                   ),
-
                   const SizedBox(height: 16),
                   CupertinoButton.filled(
-                    onPressed: stop,
-                    child: const Text("Stop & Re Initialize")
-                  ),
+                      onPressed: stop,
+                      child: const Text("Stop & Re Initialize")),
                   const SizedBox(height: 16),
-
                   Text(
                     _dataResponse,
                     textAlign: TextAlign.center,

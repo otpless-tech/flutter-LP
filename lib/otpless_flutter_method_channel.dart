@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:otpless_flutter_lp/otpless_flutter.dart';
 
 import 'otpless_flutter_platform_interface.dart';
 
@@ -36,8 +37,10 @@ class MethodChannelOtplessFlutter extends OtplessFlutterPlatform {
     return isInstalled as bool;
   }
 
-  Future<void> initialize(String appid, String secret) async {
-    await methodChannel.invokeMethod("initialize", {'appId': appid, 'secret': secret});
+  Future<String> initialize(String appid, CctSupportConfig config) async {
+    String traceId = await methodChannel.invokeMethod(
+        "initialize", {'appId': appid, 'config': config.newDynamicMap()});
+    return traceId;
   }
 
   Future<void> setResponseCallback(OtplessResultCallback callback) async {
@@ -45,8 +48,13 @@ class MethodChannelOtplessFlutter extends OtplessFlutterPlatform {
     await methodChannel.invokeMethod("setResponseCallback");
   }
 
-  Future<void> start() async {
-    await methodChannel.invokeMethod("start");
+  Future<void> start(LoginPageParams? loginPageParams) async {
+    if (loginPageParams == null) {
+      await methodChannel.invokeMethod("start");
+    } else {
+      await methodChannel.invokeMethod(
+          "start", {'loginPageParams': loginPageParams.newDynamicMap()});
+    }
   }
 
   Future<void> stop() async {

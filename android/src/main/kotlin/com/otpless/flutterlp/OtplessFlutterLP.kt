@@ -1,14 +1,10 @@
 package com.otpless.flutterlp
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.util.Log
-import androidx.annotation.NonNull
-import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
-import com.otpless.loginpage.main.ConnectController
-import com.otpless.loginpage.model.AuthResponse
 import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
@@ -19,10 +15,13 @@ import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import io.flutter.plugin.common.PluginRegistry.ActivityResultListener
 import io.flutter.plugin.common.PluginRegistry.NewIntentListener
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.json.JSONObject
+import com.otpless.loginpage.main.OtplessController
+import com.otpless.loginpage.model.CctSupportConfig
+import com.otpless.loginpage.model.CctSupportType
+import com.otpless.loginpage.model.LoginPageParams
+import com.otpless.loginpage.model.OtplessResult
 
 
 class OtplessFlutterLP: FlutterPlugin, MethodCallHandler, ActivityAware, ActivityResultListener, NewIntentListener {
@@ -33,7 +32,7 @@ class OtplessFlutterLP: FlutterPlugin, MethodCallHandler, ActivityAware, Activit
   private lateinit var channel : MethodChannel
   private lateinit var context: Context
   private lateinit var activity: FlutterFragmentActivity
-  private lateinit var connectController: ConnectController
+  private lateinit var otplessController: OtplessController
 
   override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
     channel = MethodChannel(flutterPluginBinding.binaryMessenger, "otpless_flutter_lp")
@@ -44,25 +43,24 @@ class OtplessFlutterLP: FlutterPlugin, MethodCallHandler, ActivityAware, Activit
   override fun onMethodCall(call: MethodCall, result: Result) {
     when (call.method) {
       "initialize" -> {
-        val appId = call.argument<String>("appId") ?: ""
-        val secret = call.argument<String>("secret") ?: ""
-        connectController = ConnectController.getInstance(activity, appId, secret)
-        connectController.initializeOtpless()
-        result.success("")
+        // create the instance of OtplessController if not create
+        otplessController = OtplessController.getInstance(activity)
+        initOtplessLoginPage(call, result)
       }
 
       "start" -> {
-        start()
+        val loginPageParams = parseLoginParams(call)
+        start(loginPageParams)
         result.success("")
       }
 
       "setResponseCallback" -> {
-        connectController.registerResponseCallback(this::onAuthResponse)
+        otplessController.registerResultCallback(this::onOtplessResult)
         result.success("")
       }
 
       "stop" -> {
-        connectController.closeOtpless()
+        otplessController.closeOtpless()
         result.success("")
       }
 
@@ -72,18 +70,49 @@ class OtplessFlutterLP: FlutterPlugin, MethodCallHandler, ActivityAware, Activit
     }
   }
 
-  private fun onAuthResponse(response: AuthResponse) {
-    Log.d(Tag, "callback onAuthResponse with response $response")
-    sendResponse(response.response)
+  private fun initOtplessLoginPage(call: MethodCall, result: Result) {
+    val appId = call.argument<String>("appId") ?: ""
+    val map = call.argument<Map<String, Any>>("config") ?: emptyMap()
+    val origin: Uri? = (map["origin"] as? String)?.let { Uri.parse(it) }
+    val type: String? = map["type"] as? String
+    val cctType = when (type) {
+      "cCt" -> CctSupportType.Cct
+      else -> CctSupportType.Twa
+    }
+    val config = CctSupportConfig(cctType, origin)
+    otplessController.initializeOtpless(appId, config) {
+      result.success(it)
+    }
   }
 
-  private fun sendResponse(response: JSONObject) {
-    channel.invokeMethod("otpless_callback_event", response.toString())
+  private fun onOtplessResult(result: OtplessResult) {
+    Log.d(Tag, "callback onAuthResponse with response $result")
+    // convert the result object into result map object
+    val map = when (result) {
+      is OtplessResult.Success -> mapOf(
+        "status" to "success",
+        "traceId" to result.traceId,
+        "token" to result.token
+      )
+
+      is OtplessResult.Error -> mapOf(
+        "status" to "error",
+        "traceId" to result.traceId,
+        "errorCode" to result.errorCode,
+        "errorMessage" to result.errorMessage,
+        "errorType" to result.errorType.name
+      )
+    }
+    channel.invokeMethod("otpless_callback_event", map)
   }
 
-  private fun start() {
+  private fun start(loginPageParams: LoginPageParams?) {
     activity.lifecycleScope.launch(Dispatchers.IO) {
-      connectController.startOtplessWithLoginPage()
+      // if login page params are null then
+      if (loginPageParams == null)
+        otplessController.startOtplessWithLoginPage()
+      else
+        otplessController.startOtplessWithLoginPage(loginPageParams)
     }
   }
 
@@ -99,8 +128,8 @@ class OtplessFlutterLP: FlutterPlugin, MethodCallHandler, ActivityAware, Activit
   }
 
   override fun onNewIntent(intent: Intent): Boolean {
-    if (!this::connectController.isInitialized) return false
-    connectController.onNewIntent(activity, intent)
+    if (!this::otplessController.isInitialized) return false
+    otplessController.onNewIntent(activity, intent)
     return true
   }
 
