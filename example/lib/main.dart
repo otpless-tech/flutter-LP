@@ -20,7 +20,7 @@ class _MyAppState extends State<MyApp> {
   String _dataResponse = 'Unknown';
   String lastResponse = "";
   final _otplessFlutterLP = Otpless();
-  static const String appId = "BL7SLBELGJFMQGVLXHRH";
+  static const String appId = "";
   String secret = "";
 
   // NEW: controller/focus for phone input
@@ -92,7 +92,6 @@ class _MyAppState extends State<MyApp> {
       _dataResponse = "Parsed phone: $parsed";
     });
     LoginPageParams pageParams = LoginPageParams(
-        loadingUrl: "https://zepto.otpless.com/v5/auth/index.html",
         extraQueryParams: {"phone": parsed, "countryCode": "91"});
     _otplessFlutterLP.start(pageParams);
   }
