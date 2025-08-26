@@ -16,8 +16,8 @@ Pod::Spec.new do |s|
   s.source           = { :git => 'https://github.com/otpless-tech/iOS-LP.git', :tag => s.version.to_s }
   s.source_files = 'Classes/**/*'
   s.dependency 'Flutter'
-  s.dependency 'OtplessSwiftLP', '1.0.2'
-  s.ios.deployment_target = '13.0'
+  s.dependency 'OtplessSwiftLP', '1.0.8'
+  s.ios.deployment_target = '12.0'
 
   s.swift_versions = ['5.5']
 end

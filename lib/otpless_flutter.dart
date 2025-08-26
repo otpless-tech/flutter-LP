@@ -1,3 +1,5 @@
+import 'package:otpless_flutter_lp/models.dart';
+
 import 'otpless_flutter_platform_interface.dart';
 import 'package:otpless_flutter_lp/otpless_flutter_method_channel.dart';
 
@@ -9,12 +11,12 @@ class Otpless {
     return OtplessFlutterPlatform.instance.getPlatformVersion();
   }
 
-  Future<void> start() async {
-    _otplessChannel.start();
+  Future<void> start(LoginPageParams params) async {
+    _otplessChannel.start(params);
   }
 
-  Future<void> initialize(String appid, String secret) async {
-    _otplessChannel.initialize(appid, secret);
+  Future<String> initialize(String appid) async {
+    return await _otplessChannel.initialize(appid);
   }
 
   Future<void> setResponseCallback(OtplessResultCallback callback) async {
@@ -23,5 +25,13 @@ class Otpless {
 
   Future<void> stop() async {
     _otplessChannel.stop();
+  }
+
+  Future<void> setEventListener(OtplessEventListener listener) async {
+    _otplessChannel.setEventListener(listener);
+  }
+
+  Future<void> setDebugLogging(bool enable) async {
+    _otplessChannel.setDebugLogging(enable);
   }
 }
