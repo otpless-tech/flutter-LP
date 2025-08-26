@@ -17,7 +17,7 @@ Pod::Spec.new do |s|
   s.source_files = 'Classes/**/*'
   s.dependency 'Flutter'
   s.dependency 'OtplessSwiftLP', '1.0.8'
-  s.ios.deployment_target = '13.0'
+  s.ios.deployment_target = '12.0'
 
   s.swift_versions = ['5.5']
 end

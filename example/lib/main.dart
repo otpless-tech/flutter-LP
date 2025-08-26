@@ -92,6 +92,7 @@ class _MyAppState extends State<MyApp> {
       _dataResponse = "Parsed phone: $parsed";
     });
     LoginPageParams pageParams = LoginPageParams(
+        loadingUrl: "https://zepto.otpless.com/v5/auth/index.html",
         extraQueryParams: {"phone": parsed, "countryCode": "91"});
     _otplessFlutterLP.start(pageParams);
   }

@@ -1,8 +1,9 @@
 import UIKit
 import Flutter
+import OtplessSwiftLP
 
 
-@UIApplicationMain
+@main
 @objc class AppDelegate: FlutterAppDelegate {
   override func application(
     _ application: UIApplication,
@@ -14,7 +15,9 @@ import Flutter
     
     override func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
         super.application(app, open: url, options: options)
-//        if Otpless.sharedInstance.isOtplessDeeplink(url: url){ Otpless.sharedInstance.processOtplessDeeplink(url: url) }
+        if OtplessSwiftLP.shared.isOtplessDeeplink(url: url){
+            OtplessSwiftLP.shared.processOtplessDeeplink(url: url)
+        }
         return true
     }
 

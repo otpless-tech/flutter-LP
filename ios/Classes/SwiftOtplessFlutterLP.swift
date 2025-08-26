@@ -3,6 +3,14 @@ import UIKit
 import OtplessSwiftLP
 
 public class SwiftOtplessFlutterLP: NSObject, FlutterPlugin, ConnectResponseDelegate {
+    public func onConnectResponse(_ response: OtplessResult) {
+        if response.status == "success" {
+            sendResponse(dict: OtplessResult.successMap(from: response)!)
+        } else {
+            sendResponse(dict: OtplessResult.errorMap(from: response)!)
+        }
+       
+    }
     
     public static func register(with registrar: FlutterPluginRegistrar) {
         let channel = FlutterMethodChannel(name: "otpless_flutter_lp", binaryMessenger: registrar.messenger())
@@ -19,11 +27,11 @@ public class SwiftOtplessFlutterLP: NSObject, FlutterPlugin, ConnectResponseDele
                 return
             }
             let args = call.arguments as? [String: Any]
-            let extraParams: [String: Any]? = args?["extraParams"] as? [String: String]
+            let extraParams: [String: String]? = args?["extraQueryParams"] as? [String: String]
             if let loadingUrl = args?["loadingUrl"] as? String {
-                OtplessSwiftLP.shared.start(baseUrl: loadingUrl, vc: viewController, extraParams: extraParams)
+                OtplessSwiftLP.shared.start(baseUrl: loadingUrl, vc: viewController,extras: extraParams ?? [:])
             } else {
-                OtplessSwiftLP.shared.start( vc: viewController, extraParams: extraParams)
+                OtplessSwiftLP.shared.start( vc: viewController, extras: extraParams ?? [:])
             }
             result("")
         case "initialize":
@@ -32,9 +40,10 @@ public class SwiftOtplessFlutterLP: NSObject, FlutterPlugin, ConnectResponseDele
                 return
             }
             if let args = call.arguments as? [String: Any],
-               let appId = args["appId"] as? String
+               let appId = args["appId"] as? String {
                 OtplessSwiftLP.shared.initialize(appId: appId, merchantLoginUri: nil) { traceId in
-                result(it)
+                    result(traceId)
+                }
             }
             
             result("")
@@ -51,10 +60,6 @@ public class SwiftOtplessFlutterLP: NSObject, FlutterPlugin, ConnectResponseDele
         default:
             result(FlutterMethodNotImplemented)
         }
-    }
-    
-    public func onConnectResponse(_ response: [String: Any]) {
-        sendResponse(dict: response)
     }
     
     static func filterParamsCondition(_ call: FlutterMethodCall, on onHaving: ([String: Any]) -> Void, off onNotHaving: () -> Void) {
