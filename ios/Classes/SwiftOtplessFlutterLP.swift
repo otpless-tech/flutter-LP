@@ -18,7 +18,13 @@ public class SwiftOtplessFlutterLP: NSObject, FlutterPlugin, ConnectResponseDele
                 result("")
                 return
             }
-            OtplessSwiftLP.shared.start(vc: viewController)
+            let args = call.arguments as? [String: Any]
+            let extraParams: [String: Any]? = args?["extraParams"] as? [String: String]
+            if let loadingUrl = args?["loadingUrl"] as? String {
+                OtplessSwiftLP.shared.start(baseUrl: loadingUrl, vc: viewController, extraParams: extraParams)
+            } else {
+                OtplessSwiftLP.shared.start( vc: viewController, extraParams: extraParams)
+            }
             result("")
         case "initialize":
             guard let _ = UIApplication.shared.delegate?.window??.rootViewController else {
@@ -26,10 +32,11 @@ public class SwiftOtplessFlutterLP: NSObject, FlutterPlugin, ConnectResponseDele
                 return
             }
             if let args = call.arguments as? [String: Any],
-               let appId = args["appId"] as? String,
-               let secret = args["secret"] as? String {
-                OtplessSwiftLP.shared.initialize(appId: appId, secret: secret)
+               let appId = args["appId"] as? String
+                OtplessSwiftLP.shared.initialize(appId: appId, merchantLoginUri: nil) { traceId in
+                result(it)
             }
+            
             result("")
         case "setResponseCallback":
             OtplessSwiftLP.shared.setResponseDelegate(self)
@@ -37,6 +44,10 @@ public class SwiftOtplessFlutterLP: NSObject, FlutterPlugin, ConnectResponseDele
         case "stop":
             OtplessSwiftLP.shared.cease()
             result("")
+        case "isWhatsAppInstalled": result(false)
+        case "setEventListener" : result("")
+        case "setDebugLogging": result("")
+            
         default:
             result(FlutterMethodNotImplemented)
         }
@@ -94,3 +105,4 @@ class ChannelManager {
         methodChannel?.invokeMethod(method, arguments: arguments)
     }
 }
+
