@@ -2,11 +2,13 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:otpless_flutter_lp/models.dart';
 
 import 'otpless_flutter_platform_interface.dart';
 
 typedef OtplessResultCallback = void Function(dynamic);
 typedef OtplessSimEventListener = void Function(List<Map<String, dynamic>>);
+typedef OtplessEventListener = void Function(dynamic);
 
 /// An implementation of [OtplessFlutterPlatform] that uses method channels.
 class MethodChannelOtplessFlutter extends OtplessFlutterPlatform {
@@ -16,6 +18,7 @@ class MethodChannelOtplessFlutter extends OtplessFlutterPlatform {
   final methodChannel = const MethodChannel('otpless_flutter_lp');
 
   OtplessResultCallback? _callback;
+  OtplessEventListener? eventListener;
 
   MethodChannelOtplessFlutter() {
     _setEventChannel();
@@ -27,6 +30,11 @@ class MethodChannelOtplessFlutter extends OtplessFlutterPlatform {
         final json = call.arguments as String;
         final result = jsonDecode(json);
         _callback!(result);
+      } else if (call.method == "otpless_event") {
+        if (eventListener == null) return;
+        final json = call.arguments as String;
+        final eventData = jsonDecode(json);
+        eventListener!(eventData);
       }
     });
   }
@@ -36,8 +44,8 @@ class MethodChannelOtplessFlutter extends OtplessFlutterPlatform {
     return isInstalled as bool;
   }
 
-  Future<void> initialize(String appid, String secret) async {
-    await methodChannel.invokeMethod("initialize", {'appId': appid, 'secret': secret});
+  Future<String> initialize(String appid) async {
+    return await methodChannel.invokeMethod("initialize", {'appId': appid});
   }
 
   Future<void> setResponseCallback(OtplessResultCallback callback) async {
@@ -45,11 +53,20 @@ class MethodChannelOtplessFlutter extends OtplessFlutterPlatform {
     await methodChannel.invokeMethod("setResponseCallback");
   }
 
-  Future<void> start() async {
-    await methodChannel.invokeMethod("start");
+  Future<void> start(LoginPageParams params) async {
+    await methodChannel.invokeMethod("start", params.toMap());
   }
 
   Future<void> stop() async {
-    await methodChannel.invokeListMethod("stop");
+    await methodChannel.invokeMethod("stop");
+  }
+
+  Future<void> setEventListener(OtplessEventListener listener) async {
+    eventListener = listener;
+    await methodChannel.invokeMethod("setEventListener");
+  }
+
+  Future<void> setDebugLogging(bool enable) async {
+    await methodChannel.invokeMethod("setDebugLogging", {'enable': enable});
   }
 }
