@@ -5,6 +5,7 @@ import android.content.Intent
 import android.util.Log
 import androidx.lifecycle.lifecycleScope
 import com.otpless.loginpage.main.OtplessController
+import com.otpless.loginpage.main.OtplessEventData
 import com.otpless.loginpage.model.LoginPageParams
 import com.otpless.loginpage.model.OtplessResult
 import com.otpless.loginpage.util.Utility
@@ -29,14 +30,12 @@ class OtplessFlutterLP: FlutterPlugin, MethodCallHandler, ActivityAware, Activit
   /// This local reference serves to register the plugin with the Flutter Engine and unregister it
   /// when the Flutter Engine is detached from the Activity
   private lateinit var channel : MethodChannel
-  private lateinit var context: Context
   private lateinit var activity: FlutterFragmentActivity
   private lateinit var otplessController: OtplessController
 
   override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
     channel = MethodChannel(flutterPluginBinding.binaryMessenger, "otpless_flutter_lp")
     channel.setMethodCallHandler(this)
-    context = flutterPluginBinding.applicationContext
   }
 
   override fun onMethodCall(call: MethodCall, result: Result) {
@@ -50,14 +49,7 @@ class OtplessFlutterLP: FlutterPlugin, MethodCallHandler, ActivityAware, Activit
       }
 
       "setEventListener" -> {
-        otplessController.addEventObserver{ event ->
-          val json = JSONObject().also {
-            it.put("eventType", event.eventType.name)
-            it.put("category", event.category.name)
-            it.put("metaData", event.metaData)
-          }
-          channel.invokeMethod("otpless_event", json.toString())
-        }
+        otplessController.addEventObserver(this::onOtplessEvent)
         result.success("")
       }
 
@@ -93,6 +85,17 @@ class OtplessFlutterLP: FlutterPlugin, MethodCallHandler, ActivityAware, Activit
   private fun onAuthResponse(response: OtplessResult) {
     Log.d(Tag, "callback onAuthResponse with response $response")
     sendResponse(response.toJson())
+  }
+
+  private fun onOtplessEvent(eventData: OtplessEventData) {
+    val json = JSONObject().also {
+      it.put("eventType", eventData.eventType.name)
+      it.put("category", eventData.category.name)
+      it.put("metaData", eventData.metaData)
+    }
+    activity.runOnUiThread {
+      channel.invokeMethod("otpless_event", json.toString())
+    }
   }
 
   private fun sendResponse(response: JSONObject) {
