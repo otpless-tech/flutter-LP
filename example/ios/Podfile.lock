@@ -2,12 +2,8 @@ PODS:
   - Flutter (1.0.0)
   - otpless_flutter_lp (0.0.1):
     - Flutter
-    - OtplessSwiftLP (= 1.0.2)
-  - OtplessSwiftLP (1.0.2):
-    - Socket.IO-Client-Swift (~> 16.1.1)
-  - Socket.IO-Client-Swift (16.1.1):
-    - Starscream (~> 4.0.8)
-  - Starscream (4.0.8)
+    - OtplessSwiftLP (= 1.1.0)
+  - OtplessSwiftLP (1.1.0)
 
 DEPENDENCIES:
   - Flutter (from `Flutter`)
@@ -16,8 +12,6 @@ DEPENDENCIES:
 SPEC REPOS:
   trunk:
     - OtplessSwiftLP
-    - Socket.IO-Client-Swift
-    - Starscream
 
 EXTERNAL SOURCES:
   Flutter:
@@ -26,12 +20,10 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/otpless_flutter_lp/ios"
 
 SPEC CHECKSUMS:
-  Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
-  otpless_flutter_lp: ffd01d0e340daa0a023b5f9e3e6544fc4bd47164
-  OtplessSwiftLP: 51bcac346e55157bcb5f3f67618fecddd1bccd08
-  Socket.IO-Client-Swift: 3614bea82ba005df1c2ff01154f4004993e05ad7
-  Starscream: 19b5533ddb925208db698f0ac508a100b884a1b9
+  Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
+  otpless_flutter_lp: b2354f2aafe9d4320b04341f87ac6e1896ec49a0
+  OtplessSwiftLP: 2fa6c95bc36415e45a4112d6eec9d033a59cd14b
 
-PODFILE CHECKSUM: c4c93c5f6502fe2754f48404d3594bf779584011
+PODFILE CHECKSUM: 0dbd5a87e0ace00c9610d2037ac22083a01f861d
 
 COCOAPODS: 1.16.2

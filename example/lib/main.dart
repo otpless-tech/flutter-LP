@@ -20,7 +20,7 @@ class _MyAppState extends State<MyApp> {
   String _dataResponse = 'Unknown';
   String lastResponse = "";
   final _otplessFlutterLP = Otpless();
-  static const String appId = "";
+  static const String appId = "BL7SLBELGJFMQGVLXHRH";
   String secret = "";
 
   // NEW: controller/focus for phone input
