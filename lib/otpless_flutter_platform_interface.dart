@@ -1,6 +1,7 @@
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 import 'otpless_flutter_method_channel.dart';
+import 'package:otpless_flutter_lp/models.dart';
 
 abstract class OtplessFlutterPlatform extends PlatformInterface {
   /// Constructs a OtplessFlutterPlatform.
@@ -14,7 +15,7 @@ abstract class OtplessFlutterPlatform extends PlatformInterface {
   ///
   /// Defaults to [MethodChannelOtplessFlutter].
   static OtplessFlutterPlatform get instance => _instance;
-  
+
   /// Platform-specific implementations should set this with their own
   /// platform-specific class that extends [OtplessFlutterPlatform] when
   /// they register themselves.
@@ -23,7 +24,17 @@ abstract class OtplessFlutterPlatform extends PlatformInterface {
     _instance = instance;
   }
 
-  Future<String?> getPlatformVersion() {
-    throw UnimplementedError('platformVersion() has not been implemented.');
-  }
+  Future<bool> isWhatsAppInstalled();
+
+  Future<String> initialize(String appid);
+
+  Future<void> setResponseCallback(OtplessResultCallback callback);
+
+  Future<void> start(LoginPageParams params);
+
+  Future<void> stop();
+
+  Future<void> setEventListener(OtplessEventListener listener);
+
+  Future<void> setDebugLogging(bool enable);
 }
