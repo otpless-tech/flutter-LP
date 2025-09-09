@@ -67,7 +67,15 @@ class LoginPageParams {
 
 enum DismissButtonStyle { done, cancel, close }
 
+extension DismissButtonStyleName on DismissButtonStyle {
+  String get name => toString().split(".").last;
+}
+
 enum ModalPresentationStyle { automatic, pageSheet, formSheet, overFullScreen }
+
+extension ModalPresentationStyleName on ModalPresentationStyle {
+  String get name => toString().split(".").last;
+}
 
 class SafariCustomizationOptions {
   final String? preferredBarTintColor;
