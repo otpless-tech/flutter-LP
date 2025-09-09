@@ -37,4 +37,8 @@ class OtplessSdk {
   Future<void> setDebugLogging(bool enable) async {
     _otplessPlatform.setDebugLogging(enable);
   }
+
+  Future<bool> isWhatsAppInstalled() async {
+    return await _otplessPlatform.isWhatsAppInstalled();
+  }
 }

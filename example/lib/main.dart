@@ -32,6 +32,9 @@ class _MyAppState extends State<MyApp> {
     _otplessFlutterLP.setResponseCallback(onLoginPageResult);
     _otplessFlutterLP.setEventListener(onOtplessEvent);
     OtplessSdk.instance.setDebugLogging(true);
+    _otplessFlutterLP.isWhatsAppInstalled().then((isInstalled) {
+      _apppendAndUpdateUi("whatsapp: $isInstalled");
+    });
   }
 
   @override
