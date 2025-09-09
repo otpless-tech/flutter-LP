@@ -1,3 +1,9 @@
+## 1.0.5 (9th September 2025)
+### Android
+* Android sdk version updated to 1.1.6
+### iOS
+* iOS sdk version updated to 1.1.0
+
 ## 1.0.4 (28th August 2025)
 * modal classes added on dart side
 

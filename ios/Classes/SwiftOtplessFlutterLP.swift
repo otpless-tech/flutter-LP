@@ -5,11 +5,14 @@ import OtplessSwiftLP
 public class SwiftOtplessFlutterLP: NSObject, FlutterPlugin, ConnectResponseDelegate {
     public func onConnectResponse(_ response: OtplessResult) {
         if response.status == "success" {
-            sendResponse(dict: OtplessResult.successMap(from: response)!)
+            var response = OtplessResult.successMap(from: response)!
+            response["type"] = "success"
+            sendResponse(dict: response)
         } else {
-            sendResponse(dict: OtplessResult.errorMap(from: response)!)
+            var response = OtplessResult.errorMap(from: response)!
+            response["type"] = "error"
+            sendResponse(dict: response)
         }
-       
     }
     
     public static func register(with registrar: FlutterPluginRegistrar) {
@@ -54,9 +57,12 @@ public class SwiftOtplessFlutterLP: NSObject, FlutterPlugin, ConnectResponseDele
             OtplessSwiftLP.shared.cease()
             result("")
         case "isWhatsAppInstalled": result(false)
-        case "setEventListener" : result("")
-        case "setDebugLogging": result("")
-            
+        case "setEventListener" :
+            OtplessSwiftLP.shared.setEventDelegate(self)
+            result("")
+        case "setDebugLogging":
+            OtplessSwiftLP.shared.enableSocketLogging()
+            result("")
         default:
             result(FlutterMethodNotImplemented)
         }
@@ -108,6 +114,24 @@ class ChannelManager {
     
     func invokeMethod(method: String, arguments: Any?) {
         methodChannel?.invokeMethod(method, arguments: arguments)
+    }
+}
+
+/// implementation of OnEventDelegate
+/// response is passed to otpless_event in dart
+extension SwiftOtplessFlutterLP: OnEventDelegate {
+    
+    public func onEvent(_ event: OtplessEventData) {
+        let eventMap: [String: Any] = [
+            "category": event.category.name.uppercased(),
+            "eventType": event.eventType.name.uppercased(),
+            "metaData": event.metaData
+        ]
+        // byte steam of serialzied
+        guard let bytesData = try? JSONSerialization.data(withJSONObject: eventMap),
+              let jsonString = String(data: bytesData, encoding: .utf8) else { return }
+        ChannelManager.shared.invokeMethod(method: "otpless_event", arguments: jsonString)
+
     }
 }
 

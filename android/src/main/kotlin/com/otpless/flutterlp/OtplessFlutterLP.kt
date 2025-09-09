@@ -1,6 +1,5 @@
 package com.otpless.flutterlp
 
-import android.content.Context
 import android.content.Intent
 import android.util.Log
 import androidx.lifecycle.lifecycleScope
@@ -8,6 +7,7 @@ import com.otpless.loginpage.main.OtplessController
 import com.otpless.loginpage.main.OtplessEventData
 import com.otpless.loginpage.model.LoginPageParams
 import com.otpless.loginpage.model.OtplessResult
+import com.otpless.loginpage.util.InstallUtils
 import com.otpless.loginpage.util.Utility
 import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.plugins.FlutterPlugin
@@ -53,8 +53,17 @@ class OtplessFlutterLP: FlutterPlugin, MethodCallHandler, ActivityAware, Activit
         result.success("")
       }
 
+      "isWhatsAppInstalled" -> {
+        result.success(InstallUtils.isWhatsAppInstalled(activity))
+      }
+
       "start" -> {
-        val request = convertToLoginPageParams(call.arguments as Map<String, Any?>)
+        val request = convertToLoginPageParams(
+          (call.arguments as? Map<*, *>)?.mapNotNull { (k, v) ->
+            val key = k as? String
+            if (key != null && v != null) key to v else null
+          }?.toMap() ?: emptyMap()
+        )
         start(request)
         result.success("")
       }

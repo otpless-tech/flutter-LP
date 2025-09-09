@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:otpless_flutter_lp/models.dart';
@@ -33,6 +32,9 @@ class _MyAppState extends State<MyApp> {
     _otplessFlutterLP.setResponseCallback(onLoginPageResult);
     _otplessFlutterLP.setEventListener(onOtplessEvent);
     OtplessSdk.instance.setDebugLogging(true);
+    _otplessFlutterLP.isWhatsAppInstalled().then((isInstalled) {
+      _apppendAndUpdateUi("whatsapp: $isInstalled");
+    });
   }
 
   @override
