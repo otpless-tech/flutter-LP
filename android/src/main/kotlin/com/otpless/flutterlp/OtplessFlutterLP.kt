@@ -59,10 +59,10 @@ class OtplessFlutterLP: FlutterPlugin, MethodCallHandler, ActivityAware, Activit
 
       "start" -> {
         val request = convertToLoginPageParams(
-          (call.arguments as? Map<*, *>)?.let {
-            it.filterKeys { key -> key is String }
-            emptyMap()
-          } ?: emptyMap()
+          (call.arguments as? Map<*, *>)?.mapNotNull { (k, v) ->
+            val key = k as? String
+            if (key != null && v != null) key to v else null
+          }?.toMap() ?: emptyMap()
         )
         start(request)
         result.success("")
