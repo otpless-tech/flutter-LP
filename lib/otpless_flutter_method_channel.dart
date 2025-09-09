@@ -70,10 +70,8 @@ class MethodChannelOtplessFlutter extends OtplessFlutterPlatform {
 
   @override
   Future<void> setEventListener(OtplessEventListener listener) async {
-    if (Platform.isAndroid) {
-      eventListener = listener;
-      await methodChannel.invokeMethod("setEventListener");
-    }
+    eventListener = listener;
+    await methodChannel.invokeMethod("setEventListener");
   }
 
   @override

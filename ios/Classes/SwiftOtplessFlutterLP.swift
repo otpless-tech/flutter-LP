@@ -5,11 +5,14 @@ import OtplessSwiftLP
 public class SwiftOtplessFlutterLP: NSObject, FlutterPlugin, ConnectResponseDelegate {
     public func onConnectResponse(_ response: OtplessResult) {
         if response.status == "success" {
-            sendResponse(dict: OtplessResult.successMap(from: response)!)
+            var response = OtplessResult.successMap(from: response)!
+            response["type"] = "success"
+            sendResponse(dict: response)
         } else {
-            sendResponse(dict: OtplessResult.errorMap(from: response)!)
+            var response = OtplessResult.errorMap(from: response)!
+            response["type"] = "error"
+            sendResponse(dict: response)
         }
-       
     }
     
     public static func register(with registrar: FlutterPluginRegistrar) {
