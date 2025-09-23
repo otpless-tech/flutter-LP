@@ -77,4 +77,21 @@ class MethodChannelOtplessFlutter extends OtplessFlutterPlatform {
   Future<void> setDebugLogging(bool enable) async {
     await methodChannel.invokeMethod("setDebugLogging", {'enable': enable});
   }
+
+  @override
+  Future<void> initializeSession(String appId) async {
+    await methodChannel.invokeMethod("initializeSession", {'appId': appId});
+  }
+
+  @override
+  Future<OtplessSessionResult> getActiveSession() async {
+    String responseStream =
+        await methodChannel.invokeMethod("getActiveSession");
+    return OtplessSessionResult.fromMap(jsonDecode(responseStream));
+  }
+
+  @override
+  Future<void> logout() async {
+    await methodChannel.invokeMethod("logout");
+  }
 }

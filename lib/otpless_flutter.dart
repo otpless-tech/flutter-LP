@@ -41,4 +41,16 @@ class OtplessSdk {
   Future<bool> isWhatsAppInstalled() async {
     return await _otplessPlatform.isWhatsAppInstalled();
   }
+
+  Future<void> initializeSession(String appId) async {
+    await _otplessPlatform.initializeSession(appId);
+  }
+
+  Future<OtplessSessionResult> getActiveSession() async {
+    return await _otplessPlatform.getActiveSession();
+  }
+
+  Future<void> logout() async {
+    await _otplessPlatform.logout();
+  }
 }
