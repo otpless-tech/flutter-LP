@@ -28,6 +28,7 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
+    _otplessFlutterLP.initializeSession(appId);
     _otplessFlutterLP.initialize(appId);
     _otplessFlutterLP.setResponseCallback(onLoginPageResult);
     _otplessFlutterLP.setEventListener(onOtplessEvent);
@@ -124,12 +125,14 @@ class _MyAppState extends State<MyApp> {
     }
   }
 
-  void stop() {
-    setState(() {
-      _dataResponse = "Stopping and Reinitializing Otpless...";
-    });
-    _otplessFlutterLP.stop();
-    _otplessFlutterLP.initialize(appId);
+  void getActiveSession() async {
+    OtplessSessionResult result = await OtplessSdk.instance.getActiveSession();
+    _apppendAndUpdateUi(result.toString());
+  }
+
+  void logoutSession() {
+    OtplessSdk.instance.logout();
+    _apppendAndUpdateUi("session logged out");
   }
 
   // --- NEW: phone parsing + submission ---
@@ -214,13 +217,20 @@ class _MyAppState extends State<MyApp> {
                       child: const Text("Start Otpless"),
                     ),
 
-                    const SizedBox(height: 24),
-
                     const SizedBox(height: 16),
+
                     CupertinoButton.filled(
-                      onPressed: stop,
-                      child: const Text("Stop & Re Initialize"),
+                      onPressed: getActiveSession,
+                      child: const Text("Get Active Session"),
                     ),
+                    const SizedBox(height: 16),
+
+                    CupertinoButton.filled(
+                      onPressed: logoutSession,
+                      child: const Text("Logout Session"),
+                    ),
+                    const SizedBox(height: 16),
+
                     const SizedBox(height: 16),
 
                     Text(

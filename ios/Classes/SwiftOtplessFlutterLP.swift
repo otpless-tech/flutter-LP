@@ -63,6 +63,17 @@ public class SwiftOtplessFlutterLP: NSObject, FlutterPlugin, ConnectResponseDele
         case "setDebugLogging":
             OtplessSwiftLP.shared.enableSocketLogging()
             result("")
+        case "initializeSession":
+            if let args = call.arguments as? [String: Any],
+               let appId = args["appId"] as? String {
+                Task {
+                    await OtplessSessionManager.shared.initialize(appId: appId)
+                }
+            }
+        case "getActiveSession":
+            processActiveSession(resultCallback: result)
+        case "logout":
+            processSessionLogout(resultCallback: result)
         default:
             result(FlutterMethodNotImplemented)
         }
@@ -97,6 +108,30 @@ public class SwiftOtplessFlutterLP: NSObject, FlutterPlugin, ConnectResponseDele
             return
         }
         ChannelManager.shared.invokeMethod(method: "otpless_callback_event", arguments: String(data: jsonData, encoding: .utf8))
+    }
+    
+    private func processActiveSession(resultCallback: @escaping FlutterResult) {
+        Task {
+            let session = await OtplessSessionManager.shared.getActiveSession()
+            var result: [String: String] = [:]
+            switch session {
+            case .active(let jwtToken):
+                result["state"] = "active"
+                result["sessionToken"] = jwtToken
+            case .inactive:
+                result["state"] = "inactive"
+            }
+            guard let bytesData = try? JSONSerialization.data(withJSONObject: result),
+                  let jsonString = String(data: bytesData, encoding: .utf8) else { return }
+            resultCallback(jsonString)
+        }
+    }
+    
+    private func processSessionLogout(resultCallback: @escaping FlutterResult) {
+        Task {
+            await OtplessSessionManager.shared.logout()
+            resultCallback("")
+        }
     }
 }
 

@@ -37,4 +37,10 @@ abstract class OtplessFlutterPlatform extends PlatformInterface {
   Future<void> setEventListener(OtplessEventListener listener);
 
   Future<void> setDebugLogging(bool enable);
+
+  Future<void> initializeSession(String appId);
+
+  Future<OtplessSessionResult> getActiveSession();
+
+  Future<void> logout();
 }

@@ -223,3 +223,30 @@ class OtplessEventData {
     return "category: ${category.name}, eventType: ${eventType.name}, metaData: $metaData";
   }
 }
+
+enum OtplessSessionState { active, inactive }
+
+extension OtplessSessionStateName on OtplessSessionState {
+  String get name => toString().split('.').last;
+}
+
+class OtplessSessionResult {
+  final OtplessSessionState state;
+  final String? sessionToken;
+
+  const OtplessSessionResult({required this.state, this.sessionToken});
+
+  factory OtplessSessionResult.fromMap(Map<String, dynamic> json) {
+    return OtplessSessionResult(
+        state: OtplessSessionState.values.firstWhere(
+          (e) => e.name == json["state"],
+          orElse: () => OtplessSessionState.inactive,
+        ),
+        sessionToken: json["sessionToken"]);
+  }
+
+  @override
+  String toString() {
+    return "state: ${state.name}, sessionToken: $sessionToken";
+  }
+}

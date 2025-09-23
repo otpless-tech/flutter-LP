@@ -7,6 +7,8 @@ import com.otpless.loginpage.main.OtplessController
 import com.otpless.loginpage.main.OtplessEventData
 import com.otpless.loginpage.model.LoginPageParams
 import com.otpless.loginpage.model.OtplessResult
+import com.otpless.loginpage.model.OtplessSessionState
+import com.otpless.loginpage.session.OtplessSessionManager
 import com.otpless.loginpage.util.InstallUtils
 import com.otpless.loginpage.util.Utility
 import io.flutter.embedding.android.FlutterFragmentActivity
@@ -75,7 +77,7 @@ class OtplessFlutterLP: FlutterPlugin, MethodCallHandler, ActivityAware, Activit
 
       "setDebugLogging" -> {
         val enable = call.argument<Boolean>("enable") ?: false
-        Log.d("OTPLESS_CONN", "===debug logging: $enable")
+        Log.d(Tag, "===debug logging: $enable")
         Utility.isLoggingEnabled = enable
         result.success("")
       }
@@ -84,6 +86,18 @@ class OtplessFlutterLP: FlutterPlugin, MethodCallHandler, ActivityAware, Activit
         otplessController.closeOtpless()
         result.success("")
       }
+
+      "initializeSession" -> {
+        val appId = call.argument<String>("appId") ?: return kotlin.run { result.success("") }
+        activity.lifecycleScope.launch(Dispatchers.IO) {
+          Log.d(Tag, "OtplessSessionManager initialize is called")
+          OtplessSessionManager.init(activity.applicationContext, appId)
+        }
+      }
+
+      "getActiveSession" -> processActiveSession(result)
+
+      "logout" -> processSessionLogout(result)
 
       else -> {
         result.notImplemented()
@@ -114,6 +128,31 @@ class OtplessFlutterLP: FlutterPlugin, MethodCallHandler, ActivityAware, Activit
   private fun start(params: LoginPageParams) {
     activity.lifecycleScope.launch(Dispatchers.IO) {
       otplessController.startOtplessWithLoginPage(params)
+    }
+  }
+
+  private fun processActiveSession(resultCallback: Result) {
+    Log.d(Tag, "getActiveSession requested")
+    activity.lifecycleScope.launch(Dispatchers.IO) {
+      val sessionResponse = OtplessSessionManager.getActiveSession()
+      val result = when(sessionResponse) {
+        is OtplessSessionState.Active -> JSONObject().also {
+          it.put("state", "active")
+          it.put("sessionToken", sessionResponse.jwtToken)
+        }
+        is OtplessSessionState.Inactive -> JSONObject().also {
+          it.put("state", "inactive")
+        }
+      }
+      resultCallback.success(result.toString())
+    }
+  }
+
+  private fun processSessionLogout(resultCallback: Result) {
+    Log.d(Tag, "session logout called")
+    activity.lifecycleScope.launch(Dispatchers.IO) {
+      OtplessSessionManager.logout()
+      resultCallback.success("")
     }
   }
 
