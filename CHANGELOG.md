@@ -1,3 +1,11 @@
+## 1.0.5 (23rd September 2025)
+## Session Management
+### Android
+* Android sdk version updated to 1.1.7
+### iOS
+* iOS sdk version updated to 1.1.1
+
+
 ## 1.0.4 (9th September 2025)
 ### Android
 * Android sdk version updated to 1.1.6
