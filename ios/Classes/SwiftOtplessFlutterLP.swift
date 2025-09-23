@@ -121,7 +121,8 @@ public class SwiftOtplessFlutterLP: NSObject, FlutterPlugin, ConnectResponseDele
             case .inactive:
                 result["state"] = "inactive"
             }
-            let jsonString = try JSONSerialization.data(withJSONObject: result, options: [])
+            guard let bytesData = try? JSONSerialization.data(withJSONObject: result),
+                  let jsonString = String(data: bytesData, encoding: .utf8) else { return }
             resultCallback(jsonString)
         }
     }
